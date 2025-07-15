@@ -31,6 +31,11 @@ const Index = () => {
               Launch Dashboard
             </Button>
           </Link>
+          <Link to="/smart-city">
+            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-3 ml-4">
+              Smart City Dashboard
+            </Button>
+          </Link>
         </div>
 
         {/* Industry Cards */}
