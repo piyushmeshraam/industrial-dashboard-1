@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { 
   Activity, 
   MapPin, 
@@ -26,7 +27,9 @@ import {
   Thermometer,
   Wind,
   Users,
-  Building
+  Building,
+  Menu,
+  X
 } from "lucide-react";
 
 interface KPI {
@@ -59,6 +62,7 @@ interface FacilityLocation {
 
 const SmartCityDashboard = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [kpis, setKpis] = useState<KPI[]>([
     { id: "1", name: "Energy Consumption", value: 2847, unit: "MW", trend: "down", change: -5.2, category: "Energy", icon: Zap },
     { id: "2", name: "Traffic Flow", value: 94.2, unit: "%", trend: "up", change: 2.1, category: "Transport", icon: Car },
@@ -256,6 +260,49 @@ const SmartCityDashboard = () => {
     }
   };
 
+  // Mobile menu component
+  const MobileMenu = () => (
+    <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+      <SheetTrigger asChild>
+        <Button 
+          variant="ghost" 
+          size="icon" 
+          className="md:hidden text-white hover:bg-slate-800/50"
+        >
+          <Menu className="h-5 w-5" />
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="right" className="bg-slate-900/95 backdrop-blur-xl border-slate-700 w-80">
+        <SheetHeader>
+          <SheetTitle className="text-white">Dashboard Menu</SheetTitle>
+        </SheetHeader>
+        <div className="space-y-4 mt-6">
+          <Dialog open={isAddKpiOpen} onOpenChange={setIsAddKpiOpen}>
+            <DialogTrigger asChild>
+              <Button className="w-full bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 backdrop-blur-sm">
+                <Plus className="h-4 w-4 mr-2" />
+                Add KPI
+              </Button>
+            </DialogTrigger>
+          </Dialog>
+          
+          <div className="relative">
+            <input
+              type="file"
+              accept=".csv,.json"
+              onChange={handleFileUpload}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+            />
+            <Button className="w-full bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 backdrop-blur-sm">
+              <Upload className="h-4 w-4 mr-2" />
+              Upload Data
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+
   return (
     <div 
       ref={dashboardRef}
@@ -273,26 +320,28 @@ const SmartCityDashboard = () => {
         transition: 'background 0.3s ease-out',
       }}
     >
-      {/* Header */}
+      {/* Header - Fully Responsive */}
       <div className="sticky top-0 z-50 backdrop-blur-xl bg-slate-950/80 border-b border-slate-800/50">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <div className="p-2 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm">
-                <Activity className="h-6 w-6 text-blue-400" />
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between">
+            {/* Logo and Title - Responsive */}
+            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+              <div className="p-1.5 sm:p-2 rounded-xl bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm flex-shrink-0">
+                <Activity className="h-4 w-4 sm:h-5 md:h-6 text-blue-400" />
               </div>
-              <div>
-                <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              <div className="min-w-0 flex-1">
+                <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent truncate">
                   Smart City Dashboard
                 </h1>
-                <p className="text-sm text-slate-400">Real-time city analytics</p>
+                <p className="text-xs sm:text-sm text-slate-400 hidden sm:block">Real-time city analytics</p>
               </div>
-              <Badge variant="outline" className="text-green-400 border-green-400 bg-green-400/10 animate-pulse">
+              <Badge variant="outline" className="text-green-400 border-green-400 bg-green-400/10 animate-pulse text-xs flex-shrink-0">
                 LIVE
               </Badge>
             </div>
             
-            <div className="flex items-center gap-2">
+            {/* Desktop Actions */}
+            <div className="hidden md:flex items-center gap-2">
               <Dialog open={isAddKpiOpen} onOpenChange={setIsAddKpiOpen}>
                 <DialogTrigger asChild>
                   <Button className="bg-blue-600/20 hover:bg-blue-600/30 border border-blue-500/30 backdrop-blur-sm transition-all duration-300">
@@ -300,7 +349,7 @@ const SmartCityDashboard = () => {
                     Add KPI
                   </Button>
                 </DialogTrigger>
-                <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-slate-700">
+                <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-slate-700 max-w-md mx-4">
                   <DialogHeader>
                     <DialogTitle className="text-white">Add New KPI</DialogTitle>
                   </DialogHeader>
@@ -374,33 +423,36 @@ const SmartCityDashboard = () => {
                 </Button>
               </div>
             </div>
+
+            {/* Mobile Menu */}
+            <MobileMenu />
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-6">
-        {/* KPI Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4 mb-8">
+      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6">
+        {/* KPI Grid - Fully Responsive */}
+        <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {kpis.map((kpi) => (
             <Card key={kpi.id} className="bg-slate-800/40 backdrop-blur-xl border-slate-700/50 hover:bg-slate-800/60 transition-all duration-300 rounded-2xl">
-              <CardContent className="p-4">
+              <CardContent className="p-3 sm:p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <kpi.icon className="h-5 w-5 text-blue-400" />
-                  <div className={`flex items-center gap-1 text-sm ${
+                  <kpi.icon className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0" />
+                  <div className={`flex items-center gap-1 text-xs sm:text-sm ${
                     kpi.trend === "up" ? "text-green-400" : "text-red-400"
                   }`}>
                     {kpi.trend === "up" ? (
-                      <TrendingUp className="h-3 w-3" />
+                      <TrendingUp className="h-3 w-3 flex-shrink-0" />
                     ) : (
-                      <TrendingDown className="h-3 w-3" />
+                      <TrendingDown className="h-3 w-3 flex-shrink-0" />
                     )}
-                    {Math.abs(kpi.change).toFixed(1)}%
+                    <span className="truncate">{Math.abs(kpi.change).toFixed(1)}%</span>
                   </div>
                 </div>
                 <div className="text-xs text-slate-400 uppercase tracking-wide mb-1 truncate">
                   {kpi.name}
                 </div>
-                <div className="text-xl font-bold text-white">
+                <div className="text-lg sm:text-xl font-bold text-white truncate">
                   {kpi.value.toFixed(kpi.unit === "%" ? 1 : 0)}{kpi.unit}
                 </div>
               </CardContent>
@@ -408,18 +460,18 @@ const SmartCityDashboard = () => {
           ))}
         </div>
 
-        {/* Main Dashboard Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Activity Feed - Fixed overflow issues */}
-          <div className="lg:col-span-1">
+        {/* Main Dashboard Grid - Responsive Layout */}
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
+          {/* Activity Feed - Mobile First */}
+          <div className="xl:col-span-1 order-2 xl:order-1">
             <Card className="bg-slate-800/40 backdrop-blur-xl border-slate-700/50 rounded-2xl h-fit">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-slate-300 flex items-center gap-2">
-                  <Activity className="h-5 w-5" />
-                  Activity Feed
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-slate-300 flex items-center gap-2 text-lg sm:text-xl">
+                  <Activity className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="truncate">Activity Feed</span>
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-3">
+              <CardContent className="space-y-3 max-h-96 overflow-y-auto">
                 {activities.map((activity) => (
                   <div
                     key={activity.id}
@@ -440,7 +492,7 @@ const SmartCityDashboard = () => {
                           {activity.type}
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-400 line-clamp-2">
+                      <p className="text-xs text-slate-400 line-clamp-2 break-words">
                         {activity.description}
                       </p>
                       <div className="text-xs text-slate-500">
@@ -459,18 +511,18 @@ const SmartCityDashboard = () => {
             </Card>
           </div>
 
-          {/* Charts Section */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Facility Locations - Fixed bounds and padding */}
+          {/* Charts Section - Responsive */}
+          <div className="xl:col-span-2 space-y-4 sm:space-y-6 order-1 xl:order-2">
+            {/* Facility Locations - Mobile Optimized */}
             <Card className="bg-slate-800/40 backdrop-blur-xl border-slate-700/50 rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-slate-300 flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Facility Locations
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-slate-300 flex items-center gap-2 text-lg sm:text-xl">
+                  <MapPin className="h-4 w-4 sm:h-5 sm:w-5 flex-shrink-0" />
+                  <span className="truncate">Facility Locations</span>
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="relative bg-slate-900/50 rounded-xl p-6 mb-4 overflow-hidden" style={{ height: "300px" }}>
+                <div className="relative bg-slate-900/50 rounded-xl p-4 sm:p-6 mb-4 overflow-hidden" style={{ height: "250px", minHeight: "200px" }}>
                   <div className="absolute inset-0 bg-gradient-to-br from-slate-800/30 to-slate-900/50 rounded-xl"></div>
                   
                   {/* Grid overlay */}
@@ -493,13 +545,13 @@ const SmartCityDashboard = () => {
                   {facilities.map((facility) => (
                     <div
                       key={facility.id}
-                      className={`absolute w-4 h-4 rounded-full border-2 ${getFacilityStatusColor(facility.status)} animate-pulse cursor-pointer group`}
+                      className={`absolute w-3 h-3 sm:w-4 sm:h-4 rounded-full border-2 ${getFacilityStatusColor(facility.status)} animate-pulse cursor-pointer group`}
                       style={{
-                        left: `calc(${Math.max(5, Math.min(95, facility.x))}% - 8px)`,
-                        top: `calc(${Math.max(5, Math.min(95, facility.y))}% - 8px)`,
+                        left: `calc(${Math.max(8, Math.min(92, facility.x))}% - 6px)`,
+                        top: `calc(${Math.max(8, Math.min(92, facility.y))}% - 6px)`,
                       }}
                     >
-                      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800/95 backdrop-blur-sm p-2 rounded-lg shadow-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10">
+                      <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 bg-slate-800/95 backdrop-blur-sm p-2 rounded-lg shadow-lg text-xs whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200 z-10 pointer-events-none">
                         <div className="font-medium text-white">{facility.name}</div>
                         <div className="text-slate-400">{facility.value}</div>
                       </div>
@@ -507,39 +559,39 @@ const SmartCityDashboard = () => {
                   ))}
                 </div>
 
-                {/* Facility list */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* Facility list - Responsive Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
                   {facilities.map((facility) => (
                     <div
                       key={facility.id}
-                      className="flex items-center justify-between p-3 rounded-xl bg-slate-700/30 hover:bg-slate-700/50 transition-colors"
+                      className="flex items-center justify-between p-2 sm:p-3 rounded-xl bg-slate-700/30 hover:bg-slate-700/50 transition-colors"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${getFacilityStatusColor(facility.status)}`} />
-                        <span className="text-sm text-white truncate">{facility.name}</span>
+                      <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1">
+                        <div className={`w-2 h-2 sm:w-3 sm:h-3 rounded-full ${getFacilityStatusColor(facility.status)} flex-shrink-0`} />
+                        <span className="text-xs sm:text-sm text-white truncate">{facility.name}</span>
                       </div>
-                      <div className="text-sm text-slate-300 flex-shrink-0">{facility.value}</div>
+                      <div className="text-xs sm:text-sm text-slate-300 flex-shrink-0 ml-2">{facility.value}</div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
 
-            {/* Performance Chart - Fixed label overlap */}
+            {/* Performance Chart - Mobile Optimized */}
             <Card className="bg-slate-800/40 backdrop-blur-xl border-slate-700/50 rounded-2xl">
-              <CardHeader>
-                <CardTitle className="text-slate-300">Performance Trends</CardTitle>
+              <CardHeader className="pb-3 sm:pb-4">
+                <CardTitle className="text-slate-300 text-lg sm:text-xl">Performance Trends</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="relative" style={{ height: "300px" }}>
+                <div className="relative" style={{ height: "250px", minHeight: "200px" }}>
                   <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                     {/* Grid lines */}
                     {[20, 40, 60, 80].map(y => (
                       <line
                         key={y}
-                        x1="5"
+                        x1="8"
                         y1={y}
-                        x2="95"
+                        x2="92"
                         y2={y}
                         stroke="rgb(51 65 85)"
                         strokeWidth="0.2"
@@ -549,8 +601,8 @@ const SmartCityDashboard = () => {
                     {/* Performance line */}
                     <path
                       d={performanceData.map((point, index) => {
-                        const x = 5 + (index / (performanceData.length - 1)) * 85; // 5% left margin, 85% width
-                        const y = 90 - ((point.value - 60) / 40) * 80; // 10% margins top/bottom
+                        const x = 8 + (index / (performanceData.length - 1)) * 84;
+                        const y = 85 - ((point.value - 60) / 40) * 70;
                         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
                       }).join(' ')}
                       fill="none"
@@ -563,10 +615,10 @@ const SmartCityDashboard = () => {
                     {/* Area under curve */}
                     <path
                       d={`${performanceData.map((point, index) => {
-                        const x = 5 + (index / (performanceData.length - 1)) * 85;
-                        const y = 90 - ((point.value - 60) / 40) * 80;
+                        const x = 8 + (index / (performanceData.length - 1)) * 84;
+                        const y = 85 - ((point.value - 60) / 40) * 70;
                         return `${index === 0 ? 'M' : 'L'} ${x} ${y}`;
-                      }).join(' ')} L 90 90 L 5 90 Z`}
+                      }).join(' ')} L 92 85 L 8 85 Z`}
                       fill="url(#gradient)"
                       opacity="0.3"
                     />
@@ -579,12 +631,12 @@ const SmartCityDashboard = () => {
                     </defs>
                   </svg>
                   
-                  {/* Current value label - Positioned to avoid overlap */}
-                  <div className="absolute top-4 right-4 text-right bg-slate-800/80 backdrop-blur-sm rounded-lg p-2">
-                    <div className="text-lg font-bold text-white">
+                  {/* Current value label - Responsive positioning */}
+                  <div className="absolute top-2 sm:top-4 right-2 sm:right-4 text-right bg-slate-800/80 backdrop-blur-sm rounded-lg p-1.5 sm:p-2">
+                    <div className="text-sm sm:text-lg font-bold text-white">
                       {performanceData[performanceData.length - 1]?.value.toFixed(1)}%
                     </div>
-                    <div className="text-sm text-slate-400">
+                    <div className="text-xs sm:text-sm text-slate-400">
                       Current
                     </div>
                   </div>
