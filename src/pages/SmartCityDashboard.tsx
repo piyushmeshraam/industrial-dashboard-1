@@ -101,6 +101,27 @@ const SmartCityDashboard = () => {
       description: "Expected 3.2 GW demand at 18:00",
       timestamp: "25 min ago",
     },
+    {
+      id: "5",
+      type: "success",
+      title: "System Optimization Complete",
+      description: "Energy efficiency improved by 12% across all sectors",
+      timestamp: "1 hour ago",
+    },
+    {
+      id: "6",
+      type: "warning",
+      title: "High Traffic Volume Alert",
+      description: "Downtown area experiencing 25% above normal traffic",
+      timestamp: "1.5 hours ago",
+    },
+    {
+      id: "7",
+      type: "maintenance",
+      title: "Water System Maintenance",
+      description: "Scheduled maintenance on water treatment facility",
+      timestamp: "2 hours ago",
+    },
   ]);
 
   const [facilities, setFacilities] = useState<FacilityLocation[]>([
@@ -185,14 +206,14 @@ const SmartCityDashboard = () => {
   const getActivityBadgeColor = (type: string) => {
     switch (type) {
       case "success":
-        return "border-green-400 text-green-400 bg-green-400/10";
+        return "border-green-400 text-green-400 bg-green-400/10 hover:bg-green-400/20";
       case "warning":
-        return "border-yellow-400 text-yellow-400 bg-yellow-400/10";
+        return "border-yellow-400 text-yellow-400 bg-yellow-400/10 hover:bg-yellow-400/20";
       case "maintenance":
-        return "border-blue-400 text-blue-400 bg-blue-400/10";
+        return "border-blue-400 text-blue-400 bg-blue-400/10 hover:bg-blue-400/20";
       case "info":
       default:
-        return "border-slate-400 text-slate-400 bg-slate-400/10";
+        return "border-slate-400 text-slate-400 bg-slate-400/10 hover:bg-slate-400/20";
     }
   };
 
@@ -475,34 +496,34 @@ const SmartCityDashboard = () => {
                 {activities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex gap-3 p-3 rounded-xl bg-slate-700/30 hover:bg-slate-700/50 transition-all duration-300"
+                    className="flex gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl bg-slate-700/30 hover:bg-slate-700/50 transition-all duration-300"
                   >
                     <div className="flex-shrink-0 mt-1">
                       {getActivityIcon(activity.type)}
                     </div>
-                    <div className="flex-1 min-w-0 space-y-2">
-                      <div className="flex items-start justify-between gap-2">
-                        <h4 className="text-sm font-medium text-white truncate flex-1">
+                    <div className="flex-1 min-w-0 space-y-1 sm:space-y-2">
+                      <div className="flex items-start gap-2 flex-wrap sm:flex-nowrap">
+                        <h4 className="text-xs sm:text-sm font-medium text-white truncate flex-1 min-w-0 order-1">
                           {activity.title}
                         </h4>
                         <Badge
                           variant="outline"
-                          className={`text-xs whitespace-nowrap flex-shrink-0 ${getActivityBadgeColor(activity.type)}`}
+                          className={`text-xs px-2 py-0.5 max-w-20 sm:max-w-24 truncate flex-shrink-0 order-2 sm:order-2 ${getActivityBadgeColor(activity.type)}`}
                         >
                           {activity.type}
                         </Badge>
                       </div>
-                      <p className="text-xs text-slate-400 line-clamp-2 break-words">
+                      <p className="text-xs text-slate-400 line-clamp-2 break-words pr-1">
                         {activity.description}
                       </p>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 truncate">
                         {activity.timestamp}
                       </div>
                     </div>
                   </div>
                 ))}
                 
-                <div className="pt-3 border-t border-slate-700/50">
+                <div className="pt-2 sm:pt-3 border-t border-slate-700/50">
                   <button className="w-full text-sm text-blue-400 hover:text-blue-300 transition-colors py-2 rounded-lg hover:bg-slate-700/30">
                     View All Activities →
                   </button>
